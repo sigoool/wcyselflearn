@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新增备忘录</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <!-- <script src="https://unpkg.com/element-ui/lib/index.js"></script> -->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <style type="text/css">
+        .form_width{
+            width: 500px;
+            margin:100px auto;
+        }
+        h2{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h2>Lanternfish 前端测试项目--新增</h2>
+        <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2" label-width="100px" class="demo-ruleForm form_width">
+          <el-form-item label="内容" prop="desc">
+            <el-input type="textarea" v-model="ruleForm2.desc"></el-input>
+          </el-form-item>
+            <el-form-item>
+            <el-button type="primary" @click="submitForm('ruleForm2')">提交</el-button>
+            <el-button @click="resetForm('ruleForm2')">重置</el-button>
+          </el-form-item>
+        </el-form>
+       
+    </div>
+    
+</body>
+<script type="module">
+    
+    var app=new Vue({
+        el:"#app",
+        data:{
+            ruleForm2:{
+                desc:""
+
+            },
+            rules2:{
+                desc:[
+                 { required: true, trigger: 'blur',message:"内容不能为空"},
+                 { min:1,max:20,message:"长度不能大于20或小于1"}
+                 ]
+                
+            }
+        },
+      // components:{
+      //         index
+      //     },
+        methods:{
+            submitForm(formName) {
+                // console.log(info)
+                var that=this;
+                this.$refs[formName].validate((valid) => {
+                  if (valid) {
+                        axios({
+                          method: 'post',
+                          url: 'https://todo.lanternfish.ai/todo',
+                          headers: {'Authorization': 'JWT '+window.localStorage.getItem("token")},
+                          data: {
+                            title: that.ruleForm2.desc,
+                           
+                          }
+                        }).then(function (response) {
+                       if(response){
+                        alert("添加成功");
+                        var href=window.location.href;
+                        var newhref=href.replace(/add/g, 'info');
+                        window.location.href=newhref;
+                        window.localStorage.removeItem("add2");
+                       }
+                        
+                        
+                      }).catch(function (error) {
+                        console.log(error);
+                      });
+
+                  } else {
+                    console.log('error submit!!');
+                    return false;
+                  }
+                });
+              },
+            resetForm:function(formName){
+                this.$refs[formName].resetFields();
+            }
+        }
+    })
+</script>
+</html>

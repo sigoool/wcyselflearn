@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>管理系统</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <!-- <script src="https://unpkg.com/element-ui/lib/index.js"></script> -->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <style type="text/css">
+        .form_width{
+            width: 500px;
+            margin:100px auto;
+        }
+        h2{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h2>Lanternfish 前端测试项目--登陆</h2>
+        <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2" label-width="100px" class="demo-ruleForm form_width">
+          <el-form-item label="用户名" prop="username">
+            <el-input type="text" v-model="ruleForm2.username" autocomplete="off" placeholder="请输入用户名"></el-input>
+          </el-form-item>
+          <el-form-item label="密码" prop="password">
+            <el-input type="password" v-model="ruleForm2.password" autocomplete="off" placeholder="请输入密码"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submitForm('ruleForm2')">提交</el-button>
+            <el-button @click="resetForm('ruleForm2')">重置</el-button>
+          </el-form-item>
+        </el-form>
+        <router-view></router-view>
+    </div>
+    
+</body>
+<script type="module">
+    // import index from "./index.vue"
+   // 路由模板
+    const Foo = { template: '<div>foo</div>' }
+    const Bar = { template: '<div>bar</div>' }
+    // 路由跳转路径
+    const routes = [
+      { path: '/foo', component: Foo },
+      { path: '/bar', component: Bar }
+    ]
+    // 创建路由
+    const router = new VueRouter({
+      routes 
+    })
+
+    var app=new Vue({
+        el:"#app",
+        router,
+        data:{
+            ruleForm2:{
+                username:"",
+                password:""
+
+            },
+            rules2:{
+                username:[
+                 { required: true, trigger: 'blur',message:"用户名不能为空"}],
+                password:[
+                 { required: true, trigger: 'blur',message:"密码不能为空"}]
+            }
+        },
+      // components:{
+      //         index
+      //     },
+        methods:{
+            submitForm(formName) {
+                // console.log(info)
+                var that=this;
+                this.$refs[formName].validate((valid) => {
+                  if (valid) {
+                        axios({
+                          method: 'post',
+                          url: 'https://todo.lanternfish.ai/auth',
+                           headers: {'Content-Type': 'application/json'},
+                          data: {
+                            username: that.ruleForm2.username,
+                            password: that.ruleForm2.password
+                          }
+                        }).then(function (response) {
+                        console.log(response.data.token);
+
+                        window.localStorage.setItem("token",response.data.token);//缓存token
+                        // router.push({path:"/foo"});//路由跳转
+                        // console.log(window.location.href)
+                        var href=window.location.href;
+                        var newhref=href.replace(/login/g, 'info');
+                        window.location.href=newhref;
+                        
+                      }).catch(function (error) {
+                        console.log(error);
+                      });
+
+                  } else {
+                    console.log('error submit!!');
+                    return false;
+                  }
+                });
+              },
+            resetForm:function(formName){
+                this.$refs[formName].resetFields();
+            }
+        }
+    })
+</script>
+</html>

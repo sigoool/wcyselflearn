@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>备忘录</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <!-- <script src="https://unpkg.com/element-ui/lib/index.js"></script> -->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <style type="text/css">
+        .form_width{
+            width: 700px;
+            margin:100px auto;
+        }
+        h2{
+            text-align: center;
+        }
+        .btn{
+            width: 50%;
+            text-align: center;
+            margin:0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h2>Lanternfish 前端测试项目--备忘录列表</h2>
+        <template>
+            <div class="btn">
+                <el-button 
+                  @click.native.prevent="add2()"
+                  type="success"
+                  size="small">
+                  新增备忘录
+                </el-button>
+            </div>
+            
+            <el-table
+              :data="tableData"
+              class="form_width"
+              border
+              stripe>
+              <el-table-column
+                prop="id"
+                label="id"
+                align="center"
+                >
+              </el-table-column>
+              <el-table-column
+                prop="title"
+                label="内容"
+                 align="center"
+                >
+              </el-table-column>
+              <el-table-column
+                 
+                  label="操作"
+                  width="250"
+                   align="center">
+                   
+                  <template slot-scope="scope">
+                   
+                    <el-button
+                      @click.native.prevent="update2(scope.row.id)"
+                      type="info"
+                      size="small">
+                      修改
+                    </el-button>
+                    <el-button
+                      @click.native.prevent="delete2(scope.row.id)"
+                      type="warning"
+                      size="small">
+                      删除
+                    </el-button>
+                  </template>
+                </el-table-column>
+                <!-- 自定义表头 -->
+                <!-- <el-table-column
+                
+                label="内容"
+                 align="center"
+                >
+                <template slot="header" slot-scope="scope">
+                    <el-button
+                      @click.native.prevent="add2(scope.row.id)"
+                      type="success"
+                      size="small">
+                      新增备忘录
+                    </el-button>
+                  </template>
+              </el-table-column> -->
+
+            </el-table>
+          </template>
+    </div>
+    
+</body>
+<script>
+    var app=new Vue({
+        el:"#app",
+        // router,
+        data:{
+            tableData:[]
+        },
+        mounted:function(){
+            this.mounted2();
+            
+        },
+      // components:{
+      //         index
+      //     },
+        methods:{
+            mounted2:function(){
+                var that=this;
+                axios({
+                       method: 'get',
+                       url: 'https://todo.lanternfish.ai/user/todo',
+                       headers: {'Authorization': 'JWT '+window.localStorage.getItem("token")},
+                       data: {
+                       
+                       }
+                      }).then(function (response) {
+                        console.log(response.data);
+                        that.tableData=response.data;
+                      }).catch(function (error) {
+                        console.log(error);
+                      });
+            },
+            add2:function() {
+                // window.localStorage.setItem("add2",id);
+                var href=window.location.href;
+                var newhref=href.replace(/info/g, 'add');
+                window.location.href=newhref;
+            },
+            update2:function(id) {
+                window.localStorage.setItem("update2",id);
+                var href=window.location.href;
+                var newhref=href.replace(/info/g, 'update');
+                window.location.href=newhref;
+            },
+            delete2:function(id) {
+                var that=this;
+                    axios({
+                      method: 'delete',
+                      url: 'https://todo.lanternfish.ai/todo/'+id,
+                      headers: {'Authorization': 'JWT '+window.localStorage.getItem("token")},
+                      data: {
+                       
+                      }
+                    }).then(function (response) {
+                    that.mounted2();//刷新页面
+                  }).catch(function (error) {
+                    console.log(error);
+                  });
+            }
+        }
+    })
+</script>
+</html>
